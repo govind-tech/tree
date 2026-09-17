@@ -31,6 +31,9 @@ struct listingcalls lc;
 int pattern = 0, maxpattern = 0, ipattern = 0, maxipattern = 0;
 char **patterns = NULL, **ipatterns = NULL;
 
+bool stat_mode = false;
+int stat_maxdepth = 0;
+
 char *host = NULL, *title = "Directory Tree", *sp = " ", *_nl = "\n";
 char *Hintro = NULL, *Houtro = NULL, *scheme = "file://", *authority = NULL;
 char *file_comment = "#", *file_pathsep = "/";
@@ -124,6 +127,7 @@ int main(int argc, char **argv)
   bool needfulltree, showversion = false, opt_toggle = false;
 
   memset(&flag, 0, sizeof(flag));
+  stat_maxdepth = 0;
 
   dirs = xmalloc(sizeof(int) * (size_t)(maxdirs=PATH_MAX));
   memset(dirs, 0, sizeof(int) * (size_t)maxdirs);
@@ -410,6 +414,16 @@ int main(int argc, char **argv)
 	      flag.s = flag.du = (opt_toggle? !flag.du : true);
 	      break;
 	    }
+      if (!strcmp("--size",argv[i])) {
+        j = strlen(argv[i])-1;
+        flag.s = flag.du = (opt_toggle? !flag.du : true);
+        break;
+      }
+      if (!strcmp("--stat",argv[i])) {
+        j = strlen(argv[i])-1;
+        stat_mode = (opt_toggle? !stat_mode : true);
+        break;
+      }
 	    if (!strcmp("--prune",argv[i])) {
 	      j = strlen(argv[i])-1;
 	      flag.prune = (opt_toggle? !flag.prune : true);
@@ -670,7 +684,7 @@ void usage(int n)
 	"\t[\b--gitfile\r[\b=\r]\ffile\r] [\b--matchdirs\r] [\b--metafirst\r] [\b--ignore-case\r]\n"
 	"\t[\b--nolinks\r] [\b--hintro\r[\b=\r]\ffile\r] [\b--houtro\r[\b=\r]\ffile\r] [\b--inodes\r] [\b--device\r]\n"
 	"\t[\b--sort\r[\b=\r]\fname\r] [\b--dirsfirst\r] [\b--filesfirst\r] [\b--filelimit\r[\b=\r]\f#\r] [\b--si\r]\n"
-	"\t[\b--du\r] [\b--prune\r] [\b--charset\r[\b=\r]\fX\r] [\b--timefmt\r[\b=\r]\fformat\r] [\b--fromfile\r]\n"
+	"\t[\b--du\r] [\b--size\r] [\b--stat\r] [\b--prune\r] [\b--charset\r[\b=\r]\fX\r] [\b--timefmt\r[\b=\r]\fformat\r] [\b--fromfile\r]\n"
 	"\t[\b--fromtabfile\r] [\b--fflinks\r] [\b--info\r] [\b--infofile\r[\b=\r]\ffile\r] [\b--noreport\r]\n"
 	"\t[\b--hyperlink\r] [\b--scheme\r[\b=\r]\fschema\r] [\b--authority\r[\b=\r]\fhost\r] [\b--opt-toggle\r]\n"
         "\t[\b--compress\r[\b=\r]\f#\r] [\b--condense\r] [\b--version\r] [\b--help\r]"
@@ -717,6 +731,8 @@ void usage(int n)
 	"  \b-h\r            Print the size in a more human readable way.\n"
 	"  \b--si\r          Like \b-h\r, but use in SI units (powers of 1000).\n"
 	"  \b--du\r          Compute size of directories by their contents.\n"
+  "  \b--size\r        Print the size of each directory and file.\n"
+  "  \b--stat\r        List the number of directories, files and maximum depth.\n"
 	"  \b-D\r            Print the date of last modification or (-c) status change.\n"
 	"  \b--timefmt\r \ffmt\r Print and format time according to the format \ffmt\r.\n"
 	"  \b-F\r            Appends '\b/\r', '\b=\r', '\b*\r', '\b@\r', '\b|\r' or '\b>\r' as per \bls -F\r.\n"

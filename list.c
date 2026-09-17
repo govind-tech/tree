@@ -25,6 +25,9 @@ extern int *dirs, errors;
 extern ssize_t Level;
 extern size_t htmldirlen;
 
+extern bool stat_mode;
+extern int stat_maxdepth;
+
 static char errbuf[256];
 char realbasepath[PATH_MAX];
 size_t dirpathoffset = 0;
@@ -133,12 +136,23 @@ void emit_tree(char **dirname, bool needfulltree)
 
   if (!flag.noreport) lc.report(tot);
 
+  if (stat_mode) {
+      fprintf(outfile,
+              "\nStatistics:\n"
+              "Directories: %zu\n"
+              "Files: %zu\n"
+              "Maximum depth: %d\n",
+              tot.dirs, tot.files, stat_maxdepth);
+  }
+
   lc.outtro();
 }
 
 struct totals listdir(char *dirname, struct _info **dir, int lev, dev_t dev, bool hasfulltree)
 {
   struct totals tot = {0}, subtotal;
+  if (stat_mode && lev > stat_maxdepth)
+    stat_maxdepth = lev;
   struct ignorefile *ig = NULL;
   struct infofile *inf = NULL;
   struct _info **subdir = NULL;
